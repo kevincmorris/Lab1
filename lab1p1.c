@@ -12,6 +12,8 @@
 #include "p24fj64ga002.h"
 #include <stdio.h>
 
+volatile int state = 0;
+
 // ******************************************************************************************* //
 // Configuration bits for CONFIG1 settings.
 //
@@ -42,10 +44,8 @@ int main(void)
 	// TODO: Configure AD1PCFG register for configuring input pins between analog input
 	// and digital IO.
 	// DONE
-	AD1PCFGbits.PCFG0 = 1;
-	AD1PCFGbits.PCFG1 = 1;
 
-	AD1PCFGbits.PCFG6 = 1;
+	AD1PCFGbits.PCFG4 = 1;
 
 	// TODO: Configure TRIS register bits for Right and Left LED outputs.
 	// DONE
@@ -59,8 +59,8 @@ int main(void)
 	// TODO: Configure ODC register bits to use open drain configuration for Right
 	// and Left LED output.
 	// DONE
-	ODCBbits.ODB2 = 1;
-	ODCBbits.ODB3 = 1;	
+	ODCAbits.ODB2 = 1;
+	ODCAbits.ODB3 = 1;	
 
 	// TODO: Configure TRIS register bits for switch input.
 	// DONE
@@ -98,6 +98,20 @@ int main(void)
 	{
 		// TODO: For each distinct button press, alternate which
 		// LED is illuminated (on).
+
+		switch (state)
+			case 0:
+				if (PORTBbits.RB2 == 0) {	// if button press
+					// something leds
+					state = 1;
+				}
+				else
+					state = 0;
+			case 1:
+				// if else to check conditions/switch leds?
+
+
+
 
 		// TODO: Use DebounceDelay() function to debounce button press
 		// and button release in software.
