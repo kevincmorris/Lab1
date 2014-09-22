@@ -3,6 +3,12 @@
 // MACROS for special function registers (SFR) and control bits within those
 // registers.
 
+// Nicolas Fajardo & Kevin Morris
+// Team 202
+// Date modified: 09/22/2014
+
+// K.N.P. -- Know Nonsense Programmers
+
 #include "p24fj64ga002.h"
 #include <stdio.h>
 
@@ -35,28 +41,58 @@ int main(void)
 
 	// TODO: Configure AD1PCFG register for configuring input pins between analog input
 	// and digital IO.
+	// DONE
+	AD1PCFGbits.PCFG0 = 1;
+	AD1PCFGbits.PCFG1 = 1;
+
+	AD1PCFGbits.PCFG6 = 1;
 
 	// TODO: Configure TRIS register bits for Right and Left LED outputs.
+	// DONE
+	TRISBbits.RA0 = 0;	// STOP LED
+	TRISBbits.RA1 = 0;	// RUN LED
 
 	// TODO: Configure LAT register bits to initialize Right LED to on.
+	// DONE
+	LATBbits.RA1 = 0; // RIGHT LED
 
 	// TODO: Configure ODC register bits to use open drain configuration for Right
 	// and Left LED output.
+	// DONE
+	ODCBbits.ODB2 = 1;
+	ODCBbits.ODB3 = 1;	
 
-	// TODO: Configure TRIS register bits for swtich input.
+	// TODO: Configure TRIS register bits for switch input.
+	// DONE
+	TRISBbits.RB2 = 1;
 
-	// TODO: Configure CNPU register bits to enable internal pullup resistor for switch
-	// input.
+	// TODO: Configure CNPU register bits to enable internal pullup resistor for switch input.
+	// DONE
+	CNPU1bits.CN6PUE = 1;
+	
+	// This line sets the Timer 1 to use the internal clock, to have a prescaler of 256,
+	// and to start in the 'off' position.
+	T1CON = 0x0030;
 
 	// TODO: Setup Timer 1 to use internal clock (Fosc/2).
+	// _TCS = 0;
 
 	// TODO: Setup Timer 1's prescaler to 1:256.
+	// DONE
+	// T1CONbits.TCKPS0 = 1;	
+	// T1CONbits.TCKPS1 = 1;
 
  	// TODO: Set Timer 1 to be initially off.
+	// DONE	
+	// _TON = 0;
 
 	// TODO: Clear Timer 1 value and reset interrupt flag
+	TMR1 = 0;
+	IFS0bits.T1IF = 0;
 
 	// TODO: Set Timer 1's period value register to value for 5 ms.
+	// DONE 
+	PR1 = 71;
 
 	while(1)
 	{
