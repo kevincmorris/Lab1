@@ -98,21 +98,17 @@ int main(void)
 	// DONE 
 	PR1 = 71;
 
-	while(1)
-	{
+	while(1) {
 		// TODO: For each distinct button press, alternate which
 		// LED is illuminated (on).
 
 		switch (state) {
 			case 0:
-				if (PORTBbits.RB2 == 0) {
-					DebounceDelay();
-					state = 1;
-					break;
+				if (PORTBbits.RB2 == 0) { 	// button press?
+					DebounceDelay();		// debounce press
+					state = 1;				
 				}
-				else {
-					state = 0;
-				}
+				break;
 			case 1:
 				// if else to check conditions/switch leds
 				if (LATAbits.LATA2 == 1) {
@@ -126,12 +122,12 @@ int main(void)
 				state = 2;
 				break;
 			case 2:
-				if (PORTBbits.RB2 == 1) {
-					DebounceDelay();
-					state = 0;
+				if (PORTBbits.RB2 == 1) {	// if button release
+					DebounceDelay();		// debounce release
+					state = 0;				// return to 0 to wait for press
 				}
-				else
-					state = 2;
+				else						// else, not released
+					state = 2;				// stay
 				break;
 		}
 
@@ -144,12 +140,14 @@ int main(void)
 
 // *******************************************************************************************
 
-void DebounceDelay(void) {
-	_TON = 1;
+void DebounceDelay(void) {	// function declaration for debouncing
+	_TON = 1;				// turn on TMR1 to activate 5ms interrupt cycle
 }
 
+// verbose call for TMR1 interrupt
 void __attribute__((interrupt,auto_psv)) _T1Interrupt(void){
-    TMR1 = 0;
-    IFS0bits.T1IF = 0;
-	_TON = 0;
+
+    TMR1 = 0;				// reset TMR1 value
+    IFS0bits.T1IF = 0;		// drop interrupt flag to be ready for next interrupt
+	_TON = 0;				// turn off TMR1 to ensure no unnecessary interrupt calls
 }
