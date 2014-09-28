@@ -14,6 +14,8 @@
 
 volatile int state = 0;
 
+void DebounceDelay(void);
+
 // ******************************************************************************************* //
 // Configuration bits for CONFIG1 settings.
 //
@@ -49,22 +51,23 @@ int main(void)
 
 	// TODO: Configure TRIS register bits for Right and Left LED outputs.
 	// DONE
-	TRISBbits.RA0 = 0;	// STOP LED
-	TRISBbits.RA1 = 0;	// RUN LED
+	TRISAbits.TRISA2 = 0;	// STOP LED
+	TRISAbits.TRISA3 = 0;	// RUN LED
 
 	// TODO: Configure LAT register bits to initialize Right LED to on.
 	// DONE
-	LATBbits.RA1 = 0; // RIGHT LED
+	LATAbits.LATA2 = 1; // LEFT LED OFF
+	LATAbits.LATA3 = 0; // RIGHT LED ON
 
 	// TODO: Configure ODC register bits to use open drain configuration for Right
 	// and Left LED output.
 	// DONE
-	ODCAbits.ODB2 = 1;
-	ODCAbits.ODB3 = 1;	
+	ODCAbits.ODA2 = 1;
+	ODCAbits.ODA3 = 1;	
 
 	// TODO: Configure TRIS register bits for switch input.
 	// DONE
-	TRISBbits.RB2 = 1;
+	TRISBbits.TRISB6 = 1;
 
 	// TODO: Configure CNPU register bits to enable internal pullup resistor for switch input.
 	// DONE
@@ -87,6 +90,7 @@ int main(void)
 	// _TON = 0;
 
 	// TODO: Clear Timer 1 value and reset interrupt flag
+	// DONE
 	TMR1 = 0;
 	IFS0bits.T1IF = 0;
 
@@ -99,18 +103,37 @@ int main(void)
 		// TODO: For each distinct button press, alternate which
 		// LED is illuminated (on).
 
-		switch (state)
+		switch (state) {
 			case 0:
-				if (PORTBbits.RB2 == 0) {	// if button press
-					// something leds
+				if (PORTBbits.RB2 == 0) {
+					DebounceDelay();
 					state = 1;
+					break;
+				}
+				else {
+					state = 0;
+				}
+			case 1:
+				// if else to check conditions/switch leds
+				if (LATAbits.LATA2 == 1) {
+					LATAbits.LATA2 = 0;
+					LATAbits.LATA3 = 1;
+				}
+				else {
+					LATAbits.LATA2 = 1;
+					LATAbits.LATA3 = 0;
+				}
+				state = 2;
+				break;
+			case 2:
+				if (PORTBbits.RB2 == 1) {
+					DebounceDelay();
+					state = 0;
 				}
 				else
-					state = 0;
-			case 1:
-				// if else to check conditions/switch leds?
-
-
+					state = 2;
+				break;
+		}
 
 
 		// TODO: Use DebounceDelay() function to debounce button press
@@ -120,3 +143,13 @@ int main(void)
 }
 
 // *******************************************************************************************
+
+void DebounceDelay(void) {
+	_TON = 1;
+}
+
+void __attribute__((interrupt,auto_psv)) _T1Interrupt(void){
+    TMR1 = 0;
+    IFS0bits.T1IF = 0;
+	_TON = 0;
+}
