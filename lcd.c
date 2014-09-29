@@ -103,7 +103,7 @@ void WriteLCD(unsigned char word, unsigned commandType, unsigned usDelay) {
 	// and enable the LCD for the correct command.
 
 
-	LCD_D = ((0xF0 & word) >> 4);
+	LCD_D = (0xF0 & word);
 	EnableLCD(commandType, usDelay);
 
 	// TODO: Using bit masking and shift operations, write least significant bits to correct
@@ -111,7 +111,7 @@ void WriteLCD(unsigned char word, unsigned commandType, unsigned usDelay) {
 	// and enable the LCD for the correct command.
 	
 
-	LCD_D = (0x0F & word);
+	LCD_D = ((0x0F & word) << 4);
 	EnableLCD(commandType, usDelay);
 }
 
@@ -124,9 +124,24 @@ void WriteLCD(unsigned char word, unsigned commandType, unsigned usDelay) {
 void LCDInitialize(void) {
 
 	// Setup D, RS, and E to be outputs (0).
+/*	LCD_TRIS_D7 = 0;
+	LCD_TRIS_D6 = 0;
+	LCD_TRIS_D5 = 0;
+	LCD_TRIS_D4 = 0;
+	LCD_TRIS_RS = 0;
+	LCD_TRIS_E = 0;
+*/
+	LCD_D = (LCD_D & 0x0FFF) | 0x0000;	
+	LCD_RS = 0;
+	LCD_E = 0;
+	DelayUs(15000);		
+
+	LCD_D = (LCD_D & 0x0FFF) | 0x3000; 
+	EnableLCD(LCD_WRITE_CONTROL, 4100);
+
 
 	// Initilization sequence utilizes specific LCD commands before the general configuration
-	// commands can be utilized. The first few initilition commands cannot be done using the
+	// commands can be utilized. The first few initialization commands cannot be done using the
 	// WriteLCD function. Additionally, the specific sequence and timing is very important.
 
 	// Enable 4-bit interface
@@ -138,11 +153,24 @@ void LCDInitialize(void) {
 
 	// TODO: Display On/Off Control
 	// Turn Display (D) Off
+	WriteLCD(0x08, LCD_WRITE_CONTROL, 37);
+
+
 	// TODO: Clear Display
+	WriteLCD(0x01, LCD_WRITE_CONTROL, 152);
+
 	// TODO: Entry Mode Set
 	// Set Increment Display, No Shift (i.e. cursor move)
+	//*** not sure what entry mode is? ***//
+//	WriteLCD(0x14, LCD_WRITE_CONTROL, 50);	// setting cursor address to the right of lcd
+
+	WriteLCD(0x07, LCD_WRITE_CONTROL, 37);	// set display to shift left, cursor stationary
+
 	// TODO: Display On/Off Control
 	// Turn Display (D) On, Cursor (C) Off, and Blink(B) Off
+	WriteLCD(0x0C, LCD_WRITE_CONTROL, 50);
+
+
 }
 
 // ******************************************************************************************* //
@@ -151,9 +179,12 @@ void LCDInitialize(void) {
 // and return the cursor to the origin (0,0).
 
 void LCDClear(void) {
-
+	
 	// TODO: Write the proper control instruction to clear the screen ensuring
 	// the proper delay is utilized.
+
+	WriteLCD(0x01, LCD_WRITE_CONTROL, 180);
+	WriteLCD(0x02, LCD_WRITE_CONTROL, 180);
 }
 
 // ******************************************************************************************* //
@@ -171,7 +202,7 @@ void LCDMoveCursor(unsigned char x, unsigned char y) {
 	// TODO: Write the propoer control instruction to move the cursor to the specified
 	// (x,y) coordinate. This operation should be performance as a single control
 	// control instruction, i.e. a single call the WriteLCD() function.
-
+	
 }
 
 // ******************************************************************************************* //
@@ -186,7 +217,7 @@ void LCDPrintChar(char c) {
 
 	// TODO: Write the ASCII character provide as input to the LCD display ensuring
 	// the proper delay is utilized.
-
+	WriteLCD(c, LCD_WRITE_DATA, 37);
 }
 
 // ******************************************************************************************* //
@@ -202,7 +233,10 @@ void LCDPrintChar(char c) {
 //          characters if found.
 
 void LCDPrintString(const char* s) {
-
+	int i = 0;
+	
+	for (i = 0; s[i] != '\0'; ++i)  
+		LCDPrintChar(s[i]);
 }
 
 // ******************************************************************************************* //
