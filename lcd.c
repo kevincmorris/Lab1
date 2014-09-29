@@ -124,13 +124,13 @@ void WriteLCD(unsigned char word, unsigned commandType, unsigned usDelay) {
 void LCDInitialize(void) {
 
 	// Setup D, RS, and E to be outputs (0).
-/*	LCD_TRIS_D7 = 0;
+	LCD_TRIS_D7 = 0;
 	LCD_TRIS_D6 = 0;
 	LCD_TRIS_D5 = 0;
 	LCD_TRIS_D4 = 0;
 	LCD_TRIS_RS = 0;
 	LCD_TRIS_E = 0;
-*/
+
 	LCD_D = (LCD_D & 0x0FFF) | 0x0000;	
 	LCD_RS = 0;
 	LCD_E = 0;
