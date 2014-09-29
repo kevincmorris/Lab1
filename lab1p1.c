@@ -51,23 +51,23 @@ int main(void)
 
 	// TODO: Configure TRIS register bits for Right and Left LED outputs.
 	// DONE
-	TRISAbits.TRISA2 = 0;	// STOP LED
-	TRISAbits.TRISA3 = 0;	// RUN LED
+	TRISAbits.TRISA0 = 0;	// STOP LED
+	TRISAbits.TRISA1 = 0;	// RUN LED
 
 	// TODO: Configure LAT register bits to initialize Right LED to on.
 	// DONE
-	LATAbits.LATA2 = 1; // LEFT LED OFF
-	LATAbits.LATA3 = 0; // RIGHT LED ON
+	LATAbits.LATA0 = 1; // LEFT LED OFF
+	LATAbits.LATA1 = 0; // RIGHT LED ON
 
 	// TODO: Configure ODC register bits to use open drain configuration for Right
 	// and Left LED output.
 	// DONE
-	ODCAbits.ODA2 = 1;
-	ODCAbits.ODA3 = 1;	
+	ODCAbits.ODA0 = 1;
+	ODCAbits.ODA1 = 1;	
 
 	// TODO: Configure TRIS register bits for switch input.
 	// DONE
-	TRISBbits.TRISB6 = 1;
+	TRISBbits.TRISB2 = 1;
 
 	// TODO: Configure CNPU register bits to enable internal pullup resistor for switch input.
 	// DONE
@@ -105,25 +105,25 @@ int main(void)
 
 		switch (state) {
 			case 0:
-				if (PORTBbits.RB6 == 0) { 	// button press?
+				if (PORTBbits.RB2 == 0) { 	// button press?
 					DebounceDelay();		// debounce press
 					state = 1;				
 				}
 				break;
 			case 1:
 				// if else to check conditions/switch leds
-				if (LATAbits.LATA2 == 1) {
-					LATAbits.LATA2 = 0;
-					LATAbits.LATA3 = 1;
+				if (LATAbits.LATA0 == 1) {
+					LATAbits.LATA0 = 0;
+					LATAbits.LATA1 = 1;
 				}
 				else {
-					LATAbits.LATA2 = 1;
-					LATAbits.LATA3 = 0;
+					LATAbits.LATA0 = 1;
+					LATAbits.LATA1 = 0;
 				}
 				state = 2;
 				break;
 			case 2:
-				if (PORTBbits.RB6 == 1) {	// if button release
+				if (PORTBbits.RB2 == 1) {	// if button release
 					DebounceDelay();		// debounce release
 					state = 0;				// return to 0 to wait for press
 				}
