@@ -157,7 +157,7 @@ void LCDInitialize(void) {
 
 
 	// TODO: Clear Display
-	WriteLCD(0x01, LCD_WRITE_CONTROL, 152);
+	WriteLCD(0x01, LCD_WRITE_CONTROL, 1520);
 
 	// TODO: Entry Mode Set
 	// Set Increment Display, No Shift (i.e. cursor move)
@@ -183,8 +183,8 @@ void LCDClear(void) {
 	// TODO: Write the proper control instruction to clear the screen ensuring
 	// the proper delay is utilized.
 
-	WriteLCD(0x01, LCD_WRITE_CONTROL, 152);
-	WriteLCD(0x02, LCD_WRITE_CONTROL, 152);
+	WriteLCD(0x01, LCD_WRITE_CONTROL, 1520);
+	WriteLCD(0x02, LCD_WRITE_CONTROL, 1520);
 }
 
 // ******************************************************************************************* //
@@ -203,7 +203,7 @@ void LCDMoveCursor(unsigned char x, unsigned char y) {
 	// (x,y) coordinate. This operation should be performance as a single control
 	// control instruction, i.e. a single call the WriteLCD() function.
 
-	WriteLCD(0x80 | (x<<6) | y;, LCD_WRITE_CONTROL, 37);
+	WriteLCD(0x80 | (x<<6) | y, LCD_WRITE_CONTROL, 37);
 	
 }
 

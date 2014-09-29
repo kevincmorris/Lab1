@@ -14,6 +14,8 @@
 #include "lcd.h"
 
 volatile int state = 0;
+volatile unsigned int minutes = 0;
+volatile unsigned int seconds = 0;
 
 void DebounceDelay(void);
 
@@ -151,14 +153,7 @@ int main(void)
 					LATAbits.LATA2 = 1;
 					LATAbits.LATA3 = 0;			// stay
 				break;
-			case 3:
-					LCDMoveCursor(0,0);
-					LCDPrintString("Run:");
-					LCDMoveCursor(1,4);
-					LCDPrintChar(cnt+'0');
-					LATAbits.LATA2 = 0;
-					LATAbits.LATA3 = 1;
-				break;
+			
 		}
 		
 
@@ -204,17 +199,10 @@ void __attribute__((interrupt,auto_psv)) _CNInterrupt(void){
 			break;
 		case 2:								// After switch is pressed second time, before release
 			if(PORTBbits.RB6 == 0){
-				state = 3;
-			}
-			break;
-		case 3:								// After switch is released
-			if(PORTBbits.RB5 == 0){
-				state = 0;
-			}
-			else if(PORTBbits.RB6 == 0){
 				state = 1;
 			}
 			break;
+	
 	}
 
 }
