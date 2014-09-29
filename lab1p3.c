@@ -96,6 +96,7 @@ int main(void)
 	// This line sets the Timer 2 to use the internal clock, to have a prescaler of 256,
 	// and to start in the 'off' position.
 	T3CON = 0x0030;
+	T1CON = 0x0030;
 
 	// TODO: Setup Timer 2 to use internal clock (Fosc/2).
 	// _TCS = 0;
@@ -114,10 +115,15 @@ int main(void)
 	TMR3 = 0;
 	IFS0bits.T3IF = 0;
 	IEC0bits.T3IE = 1;
+	
+	TMR1 = 0;
+	IFS0bits.T1IF = 0;
+	IEC0bits.T1IE = 1;
 
 	// TODO: Set Timer 1's period value register to value for 5 ms.
 	// DONE 
 	PR3 = 71;
+	PR1 = 57599;
 
 	// set change interrupt for both switches
 
@@ -171,13 +177,24 @@ void DebounceDelay(void) {	// function declaration for debouncing
 	}
 }
 
-// verbose call for TMR2 interrupt
-void __attribute__((interrupt,auto_psv)) _T2Interrupt(void){
+// verbose call for TMR3 interrupt
+void __attribute__((interrupt,auto_psv)) _T3Interrupt(void){
 
     TMR3 = 0;				// reset TMR1 value
     IFS0bits.T3IF = 0;		// drop interrupt flag to be ready for next interrupt
 	T3CONbits.TON = 0;				// turn off TMR2 to ensure no unnecessary interrupt calls
 }
+
+void __attribute__((interrupt,auto_psv)) _T1Interrupt(void){
+	++seconds;
+	if (seconds == 60) {
+		seconds = 0;
+		++minutes;
+	}
+    TMR1 = 0;				// reset TMR1 value
+    IFS0bits.T1IF = 0;		// drop interrupt flag to be ready for next interrupt
+}
+
 
 void __attribute__((interrupt,auto_psv)) _CNInterrupt(void){
 	
@@ -192,17 +209,28 @@ void __attribute__((interrupt,auto_psv)) _CNInterrupt(void){
 			}
 			else if(PORTBbits.RB6 == 0){
 				state = 1;
+				_TON = 1;
 			}
 			break;
 		case 1:								// After switch is pressed, before second press
 			if(PORTBbits.RB6 == 0){
 				state = 2;
+				_TON = 0;
 			}
+			
 			break;
 		case 2:								// After switch is pressed second time, before release
 			if(PORTBbits.RB6 == 0){
 				state = 1;
 			}
+			if (PORTBbits.RB5 == 0){
+				state = 0;
+				minutes = 0;
+				seconds = 0;
+				_TON = 0;
+				TMR1 = 0;
+			}
+			
 			break;
 	
 	}
