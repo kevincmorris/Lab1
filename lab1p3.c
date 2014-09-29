@@ -95,7 +95,7 @@ int main(void)
 	
 	// This line sets the Timer 2 to use the internal clock, to have a prescaler of 256,
 	// and to start in the 'off' position.
-	T2CON = 0x0030;
+	T3CON = 0x0030;
 
 	// TODO: Setup Timer 2 to use internal clock (Fosc/2).
 	// _TCS = 0;
@@ -111,13 +111,13 @@ int main(void)
 
 	// TODO: Clear Timer 2 value and reset interrupt flag
 	// DONE
-	TMR2 = 0;
-	IFS0bits.T2IF = 0;
-	IEC0bits.T2IE = 1;
+	TMR3 = 0;
+	IFS0bits.T3IF = 0;
+	IEC0bits.T3IE = 1;
 
 	// TODO: Set Timer 1's period value register to value for 5 ms.
 	// DONE 
-	PR2 = 71;
+	PR3 = 71;
 
 	// set change interrupt for both switches
 
@@ -166,15 +166,17 @@ int main(void)
 // *******************************************************************************************
 
 void DebounceDelay(void) {	// function declaration for debouncing
-	T2CONbits.TON = 1;				// turn on TMR2 to activate 5ms interrupt cycle
+	T3CONbits.TON = 1;  // turn on TMR2 to activate 5ms interrupt cycle
+	while(T3CONbits.TON != 0){
+	}
 }
 
 // verbose call for TMR2 interrupt
 void __attribute__((interrupt,auto_psv)) _T2Interrupt(void){
 
-    TMR2 = 0;				// reset TMR1 value
-    IFS0bits.T2IF = 0;		// drop interrupt flag to be ready for next interrupt
-	T2CONbits.TON = 0;				// turn off TMR2 to ensure no unnecessary interrupt calls
+    TMR3 = 0;				// reset TMR1 value
+    IFS0bits.T3IF = 0;		// drop interrupt flag to be ready for next interrupt
+	T3CONbits.TON = 0;				// turn off TMR2 to ensure no unnecessary interrupt calls
 }
 
 void __attribute__((interrupt,auto_psv)) _CNInterrupt(void){
