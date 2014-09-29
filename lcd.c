@@ -103,7 +103,7 @@ void WriteLCD(unsigned char word, unsigned commandType, unsigned usDelay) {
 	// and enable the LCD for the correct command.
 
 
-	LCD_D = (0xF0 & word);
+	LCD_D = (0xFFF0 & word);
 	EnableLCD(commandType, usDelay);
 
 	// TODO: Using bit masking and shift operations, write least significant bits to correct
@@ -111,7 +111,7 @@ void WriteLCD(unsigned char word, unsigned commandType, unsigned usDelay) {
 	// and enable the LCD for the correct command.
 	
 
-	LCD_D = ((0x0F & word) << 4);
+	LCD_D = ((0x0FFFF & word) << 12);
 	EnableLCD(commandType, usDelay);
 }
 
@@ -183,8 +183,8 @@ void LCDClear(void) {
 	// TODO: Write the proper control instruction to clear the screen ensuring
 	// the proper delay is utilized.
 
-	WriteLCD(0x01, LCD_WRITE_CONTROL, 180);
-	WriteLCD(0x02, LCD_WRITE_CONTROL, 180);
+	WriteLCD(0x01, LCD_WRITE_CONTROL, 152);
+	WriteLCD(0x02, LCD_WRITE_CONTROL, 152);
 }
 
 // ******************************************************************************************* //
