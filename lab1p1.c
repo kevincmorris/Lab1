@@ -105,7 +105,7 @@ int main(void)
 
 		switch (state) {
 			case 0:
-				if (PORTBbits.RB2 == 0) { 	// button press?
+				if (PORTBbits.RB6 == 0) { 	// button press?
 					DebounceDelay();		// debounce press
 					state = 1;				
 				}
@@ -123,7 +123,7 @@ int main(void)
 				state = 2;
 				break;
 			case 2:
-				if (PORTBbits.RB2 == 1) {	// if button release
+				if (PORTBbits.RB6 == 1) {	// if button release
 					DebounceDelay();		// debounce release
 					state = 0;				// return to 0 to wait for press
 				}
