@@ -34,16 +34,29 @@
 // Function Inputs:
 //    unsigned usDelay     : Specifies the requested delay in microsecond
 
-void DelayUs(unsigned int usDelay) {
-
+void DelayUs(unsigned int usDelay) { // DONE
+	
 	// TODO: Use Timer 2 to delay for precisely (as precise as possible) usDelay
 	// microseconds provided by the input variable.
 	//
 	// Hint: Determine the configuration for the PR1 setting that provides for a
 	// one microsecond delay, and multiply this by the input variable.
 	// Be sure to user integer values only.
-/**********************************************/
-
+/*****************************************************/
+/*
+	T2CON = 0x8010;
+	- sets TMR1 to be on and use the internal oscillator, with a prescaler of 8
+	
+	F_CY = 4*F_OSC/2 = 4*7372800/2 = 14745600
+	TMR2_FREQ = F_CY/PRESCALER = 1843200
+	1843200 * (1 us) = 1.8432 = ~2
+*/
+	T2CON = 0x8010;
+	TMR2 = 0;
+	PR2 = (2 * usDelay) - 1;
+	IFS0bits.T2IF = 0;
+	IEC0bits.T2IE = 1;
+	
 
 /*****************************************************/
 }
@@ -73,7 +86,7 @@ void EnableLCD(unsigned char commandType, unsigned usDelay) {
 // ******************************************************************************************* //
 
 // TODO: WriteLCD function should write either control instruciton of data characters to the
-// LCD display using the 4-bit interface. This function will handled the bit masking and shifting
+// LCD display using the 4-bit interface. This function will handle the bit masking and shifting
 // to write the individual 4-bit nibbles to the LCD data inputs. Control instructions
 // are written in the commandType is 0 (LCD_WRITE_CONTROL), and ASCII characters are written
 // if the commandType is 1 (LCD_WRITE_DATA).
@@ -89,9 +102,17 @@ void WriteLCD(unsigned char word, unsigned commandType, unsigned usDelay) {
 	// bits of the LCD_D signal (i.e. #define used to map internal name to LATB)
 	// and enable the LCD for the correct command.
 
+
+	LCD_D = ((0xF0 & word) >> 4);
+	EnableLCD(commandType, usDelay);
+
 	// TODO: Using bit masking and shift operations, write least significant bits to correct
 	// bits of the LCD_D signal (i.e. #define used to map internal name to LATB)
 	// and enable the LCD for the correct command.
+	
+
+	LCD_D = (0x0F & word);
+	EnableLCD(commandType, usDelay);
 }
 
 // ******************************************************************************************* //

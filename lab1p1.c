@@ -93,6 +93,7 @@ int main(void)
 	// DONE
 	TMR1 = 0;
 	IFS0bits.T1IF = 0;
+	IEC0bits.T1IE = 1;
 
 	// TODO: Set Timer 1's period value register to value for 5 ms.
 	// DONE 
