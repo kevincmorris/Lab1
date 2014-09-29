@@ -202,6 +202,8 @@ void LCDMoveCursor(unsigned char x, unsigned char y) {
 	// TODO: Write the propoer control instruction to move the cursor to the specified
 	// (x,y) coordinate. This operation should be performance as a single control
 	// control instruction, i.e. a single call the WriteLCD() function.
+
+	WriteLCD(0x80 | (x<<6) | y;, LCD_WRITE_CONTROL, 37);
 	
 }
 
