@@ -103,7 +103,7 @@ void WriteLCD(unsigned char word, unsigned commandType, unsigned usDelay) {
 	// and enable the LCD for the correct command.
 
 
-	LCD_D = (0xF0 & word);
+	LCD_D = (0xFFF0 & word);
 	EnableLCD(commandType, usDelay);
 
 	// TODO: Using bit masking and shift operations, write least significant bits to correct
@@ -111,7 +111,7 @@ void WriteLCD(unsigned char word, unsigned commandType, unsigned usDelay) {
 	// and enable the LCD for the correct command.
 	
 
-	LCD_D = ((0x0F & word) << 4);
+	LCD_D = ((0x0FFFF & word) << 12);
 	EnableLCD(commandType, usDelay);
 }
 
@@ -157,7 +157,7 @@ void LCDInitialize(void) {
 
 
 	// TODO: Clear Display
-	WriteLCD(0x01, LCD_WRITE_CONTROL, 152);
+	WriteLCD(0x01, LCD_WRITE_CONTROL, 1520);
 
 	// TODO: Entry Mode Set
 	// Set Increment Display, No Shift (i.e. cursor move)
@@ -183,8 +183,8 @@ void LCDClear(void) {
 	// TODO: Write the proper control instruction to clear the screen ensuring
 	// the proper delay is utilized.
 
-	WriteLCD(0x01, LCD_WRITE_CONTROL, 180);
-	WriteLCD(0x02, LCD_WRITE_CONTROL, 180);
+	WriteLCD(0x01, LCD_WRITE_CONTROL, 1520);
+	WriteLCD(0x02, LCD_WRITE_CONTROL, 1520);
 }
 
 // ******************************************************************************************* //
@@ -202,6 +202,8 @@ void LCDMoveCursor(unsigned char x, unsigned char y) {
 	// TODO: Write the propoer control instruction to move the cursor to the specified
 	// (x,y) coordinate. This operation should be performance as a single control
 	// control instruction, i.e. a single call the WriteLCD() function.
+
+	WriteLCD(0x80 | (x<<6) | y, LCD_WRITE_CONTROL, 37);
 	
 }
 
