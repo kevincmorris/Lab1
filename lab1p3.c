@@ -135,29 +135,40 @@ int main(void)
 	while(1) {
 		// TODO: For each distinct button press, alternate which
 		// LED is illuminated (on).
+		LCDClear();
 
 		switch (state) {
 			case 0:
+					LATAbits.LATA2 = 1;
+					LATAbits.LATA3 = 0;
 					LCDMoveCursor(0,0);
 					LCDPrintString("Stop:");
 					LCDMoveCursor(1,0);
 					LCDPrintString("00:00.00");
-					LATAbits.LATA2 = 1;
-					LATAbits.LATA3 = 0;
 				break;
 			case 1:
+					LATAbits.LATA2 = 0;
+					LATAbits.LATA3 = 1;
 					LCDMoveCursor(0,0);
 					LCDPrintString("Run:");
 					LCDMoveCursor(1,4);
-					LCDPrintChar(cnt+'0');
-					LATAbits.LATA2 = 0;
-					LATAbits.LATA3 = 1;
+					LCDPrintChar(minutes);
+					LCDPrintChar(":");
+					LCDPrintChar(seconds);
+					LCDPrintChar(".");
+					LCDPrintChar(TMR1/576);
 				break;
 			case 2:
+					LATAbits.LATA2 = 1;
+					LATAbits.LATA3 = 0;
 					LCDMoveCursor(0,0);
 					LCDPrintString("Stop:");
-					LATAbits.LATA2 = 1;
-					LATAbits.LATA3 = 0;			// stay
+					LCDMoveCursor(1,4);
+					LCDPrintChar(minutes);
+					LCDPrintChar(":");
+					LCDPrintChar(seconds);
+					LCDPrintChar(".");
+					LCDPrintChar(TMR1/576);			// stay
 				break;
 			
 		}
@@ -203,7 +214,6 @@ void __attribute__((interrupt,auto_psv)) _CNInterrupt(void){
 
 	switch (state){
 		case 0:								// Initial state
-			LCDClear();
 			if(PORTBbits.RB5 == 0){
 				state = 0;
 			}
