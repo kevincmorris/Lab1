@@ -124,20 +124,80 @@ void WriteLCD(unsigned char word, unsigned commandType, unsigned usDelay) {
 void LCDInitialize(void) {
 
 	// Setup D, RS, and E to be outputs (0).
+	LCD_TRIS_RS = 0;
+	LCD_TRIS_E = 0;
 	LCD_TRIS_D7 = 0;
 	LCD_TRIS_D6 = 0;
 	LCD_TRIS_D5 = 0;
 	LCD_TRIS_D4 = 0;
-	LCD_TRIS_RS = 0;
-	LCD_TRIS_E = 0;
 
-	LCD_D = (LCD_D & 0x0FFF) | 0x0000;	
+
+
+	DelayUs(15000);
 	LCD_RS = 0;
 	LCD_E = 0;
-	DelayUs(15000);		
+	LCD_D = (0x3);
 
-	LCD_D = (LCD_D & 0x0FFF) | 0x3000; 
-	EnableLCD(LCD_WRITE_CONTROL, 4100);
+
+	DelayUs(4100);
+	LCD_RS = 0;
+	LCD_E = 0;
+	LCD_D = (0x3);
+
+
+	DelayUs(100);
+	LCD_RS = 0;
+	LCD_E = 0;
+	LCD_D = (0x3);
+
+
+	DelayUs(40);
+	LCD_RS = 0;
+	LCD_E = 0;
+	LCD_D = (0x2);
+
+
+	DelayUs(40);
+	LCD_RS = 0;
+	LCD_E = 0;
+	LCD_D = (0x2);
+
+
+	DelayUs(40);
+	LCD_RS = 0;
+	LCD_E = 0;
+	LCD_D = (0x8);
+
+	
+	DelayUs(40);
+	LCD_RS = 0;
+	LCD_E = 0;	
+	LCD_D = (0x);
+
+
+	DelayUs(40);
+	LCD_RS = 0;
+	LCD_E = 0;
+	LCD_D = (0x8);
+
+
+	DelayUs(40);
+	LCD_RS = 0;
+	LCD_E = 0;
+	LCD_D = (0x1);
+
+
+	DelayUs(1640);
+	LCD_RS = 0;
+	LCD_E = 0;
+	LCD_D = (0x0);
+
+
+	DelayUs(40);
+	LCD_RS = 0;
+	LCD_E = 0;
+	LCD_D = (0x6);
+
 
 
 	// Initilization sequence utilizes specific LCD commands before the general configuration
@@ -153,22 +213,22 @@ void LCDInitialize(void) {
 
 	// TODO: Display On/Off Control
 	// Turn Display (D) Off
-	WriteLCD(0x08, LCD_WRITE_CONTROL, 37);
+//	WriteLCD(0x08, LCD_WRITE_CONTROL, 37);
 
 
 	// TODO: Clear Display
-	WriteLCD(0x01, LCD_WRITE_CONTROL, 1520);
+//	WriteLCD(0x01, LCD_WRITE_CONTROL, 1520);
 
 	// TODO: Entry Mode Set
 	// Set Increment Display, No Shift (i.e. cursor move)
 	//*** not sure what entry mode is? ***//
 //	WriteLCD(0x14, LCD_WRITE_CONTROL, 50);	// setting cursor address to the right of lcd
 
-	WriteLCD(0x07, LCD_WRITE_CONTROL, 37);	// set display to shift left, cursor stationary
+//	WriteLCD(0x07, LCD_WRITE_CONTROL, 37);	// set display to shift left, cursor stationary
 
 	// TODO: Display On/Off Control
 	// Turn Display (D) On, Cursor (C) Off, and Blink(B) Off
-	WriteLCD(0x0C, LCD_WRITE_CONTROL, 50);
+//	WriteLCD(0x0C, LCD_WRITE_CONTROL, 50);
 
 
 }
