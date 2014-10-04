@@ -55,7 +55,10 @@ void DelayUs(unsigned int usDelay) { // DONE
 	TMR2 = 0;
 	PR2 = (2 * usDelay) - 1;
 	IFS0bits.T2IF = 0;
-	IEC0bits.T2IE = 1;
+//	IEC0bits.T2IE = 1;
+	while(IFS0bits.T2IF == 0){};
+	T1CONbits.TON = 0;
+	IFS0bits.T2IF = 0;
 	
 
 /*****************************************************/
@@ -103,7 +106,7 @@ void WriteLCD(unsigned char word, unsigned commandType, unsigned usDelay) {
 	// and enable the LCD for the correct command.
 
 
-	LCD_D = (0xFFF0 & word);
+	LCD_D = (LCD_D & 0x0FFF) | ((0xF0 & word) << 8);
 	EnableLCD(commandType, usDelay);
 
 	// TODO: Using bit masking and shift operations, write least significant bits to correct
@@ -111,7 +114,7 @@ void WriteLCD(unsigned char word, unsigned commandType, unsigned usDelay) {
 	// and enable the LCD for the correct command.
 	
 
-	LCD_D = ((0x0FFFF & word) << 12);
+	LCD_D = (LCD_D & 0x0FFF) | ((0x0F & word) << 12);
 	EnableLCD(commandType, usDelay);
 }
 
@@ -131,72 +134,28 @@ void LCDInitialize(void) {
 	LCD_TRIS_D5 = 0;
 	LCD_TRIS_D4 = 0;
 
-
-
-	DelayUs(15000);
-	LCD_RS = 0;
-	LCD_E = 0;
-	LCD_D = (0x3);
-
-
-	DelayUs(4100);
-	LCD_RS = 0;
-	LCD_E = 0;
-	LCD_D = (0x3);
-
-
-	DelayUs(100);
-	LCD_RS = 0;
-	LCD_E = 0;
-	LCD_D = (0x3);
-
-
-	DelayUs(40);
-	LCD_RS = 0;
-	LCD_E = 0;
-	LCD_D = (0x2);
-
-
-	DelayUs(40);
-	LCD_RS = 0;
-	LCD_E = 0;
-	LCD_D = (0x2);
-
-
-	DelayUs(40);
-	LCD_RS = 0;
-	LCD_E = 0;
-	LCD_D = (0x8);
-
-	
-	DelayUs(40);
-	LCD_RS = 0;
-	LCD_E = 0;	
-	LCD_D = (0x);
-
-
-	DelayUs(40);
-	LCD_RS = 0;
-	LCD_E = 0;
-	LCD_D = (0x8);
-
-
-	DelayUs(40);
-	LCD_RS = 0;
-	LCD_E = 0;
-	LCD_D = (0x1);
-
-
-	DelayUs(1640);
-	LCD_RS = 0;
-	LCD_E = 0;
 	LCD_D = (0x0);
-
-
-	DelayUs(40);
 	LCD_RS = 0;
 	LCD_E = 0;
-	LCD_D = (0x6);
+	DelayUs(15000);
+
+	LCD_D = (LCD_D & 0x0FFF) | 0x3000;
+	EnableLCD(LCD_WRITE_CONTROL, 4100);
+
+	LCD_D = (LCD_D & 0x0FFF) | 0x3000;
+	EnableLCD(LCD_WRITE_CONTROL, 100);
+
+	WriteLCD(0x32, LCD_WRITE_CONTROL, 100);
+
+	WriteLCD(0x28, LCD_WRITE_CONTROL, 40);
+
+	WriteLCD(0x08, LCD_WRITE_CONTROL, 40);
+
+	WriteLCD(0x01, LCD_WRITE_CONTROL, 1640);
+	
+	WriteLCD(0x06, LCD_WRITE_CONTROL, 40);
+
+	WriteLCD(0x0C, LCD_WRITE_CONTROL, 50);
 
 
 
@@ -228,7 +187,7 @@ void LCDInitialize(void) {
 
 	// TODO: Display On/Off Control
 	// Turn Display (D) On, Cursor (C) Off, and Blink(B) Off
-//	WriteLCD(0x0C, LCD_WRITE_CONTROL, 50);
+
 
 
 }
@@ -244,7 +203,6 @@ void LCDClear(void) {
 	// the proper delay is utilized.
 
 	WriteLCD(0x01, LCD_WRITE_CONTROL, 1520);
-	WriteLCD(0x02, LCD_WRITE_CONTROL, 1520);
 }
 
 // ******************************************************************************************* //
@@ -263,7 +221,7 @@ void LCDMoveCursor(unsigned char x, unsigned char y) {
 	// (x,y) coordinate. This operation should be performance as a single control
 	// control instruction, i.e. a single call the WriteLCD() function.
 
-	WriteLCD(0x80 | (x<<6) | y, LCD_WRITE_CONTROL, 37);
+	WriteLCD(0x80 | (x<<6) | y, LCD_WRITE_CONTROL, 40);
 	
 }
 
@@ -271,7 +229,7 @@ void LCDMoveCursor(unsigned char x, unsigned char y) {
 
 // TODO: LCDPrintChar should print a single ASCII character to the LCD diplay at the
 // current cursor position.
-//
+//u
 // Function Inputs:
 //    char c : ASCII character to write to LCD
 
@@ -279,7 +237,7 @@ void LCDPrintChar(char c) {
 
 	// TODO: Write the ASCII character provide as input to the LCD display ensuring
 	// the proper delay is utilized.
-	WriteLCD(c, LCD_WRITE_DATA, 37);
+	WriteLCD(c, LCD_WRITE_DATA, 40);
 }
 
 // ******************************************************************************************* //
@@ -295,10 +253,15 @@ void LCDPrintChar(char c) {
 //          characters if found.
 
 void LCDPrintString(const char* s) {
-	int i = 0;
-	
-	for (i = 0; s[i] != '\0'; ++i)  
-		LCDPrintChar(s[i]);
+while(*s) LCDPrintChar(*(s++));
 }
 
 // ******************************************************************************************* //
+
+
+//void __attribute__((interrupt,auto_psv)) _T2Interrupt(void){
+//
+//    TMR2 = 0;				// reset TMR1 value
+//    IFS0bits.T2IF = 0;		// drop interrupt flag to be ready for next interrupt
+//	T2CONbits.TON = 0;				// turn off TMR2 to ensure no unnecessary interrupt calls/
+//}

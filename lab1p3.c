@@ -60,7 +60,7 @@ int main(void)
 {
 	// ****************************************************************************** //
 
-	LCDInitialize();
+//	LCDInitialize();
 
 	// TODO: Configure AD1PCFG register for configuring input pins between analog input
 	// and digital IO.
@@ -70,23 +70,23 @@ int main(void)
 
 	// TODO: Configure TRIS register bits for Right and Left LED outputs.
 	// DONE
-	TRISAbits.TRISA2 = 0;	// STOP LED
-	TRISAbits.TRISA3 = 0;	// RUN LED
+	TRISAbits.TRISA0 = 0;	// STOP LED
+	TRISAbits.TRISA1 = 0;	// RUN LED
 
 	// TODO: Configure LAT register bits to initialize Right LED to on.
 	// DONE
-	LATAbits.LATA2 = 1; // LEFT LED OFF
-	LATAbits.LATA3 = 0; // RIGHT LED ON
+	LATAbits.LATA0 = 1; // LEFT LED OFF
+	LATAbits.LATA1 = 0; // RIGHT LED ON
 
 	// TODO: Configure ODC register bits to use open drain configuration for Right
 	// and Left LED output.
 	// DONE
-	ODCAbits.ODA2 = 1;
-	ODCAbits.ODA3 = 1;	
+	ODCAbits.ODA0 = 1;
+	ODCAbits.ODA1 = 1;	
 
 	// TODO: Configure TRIS register bits for switch input.
 	// DONE
-	TRISBbits.TRISB6 = 1;
+	TRISBbits.TRISB2 = 1;
 	TRISBbits.TRISB5 = 1;
 
 	// TODO: Configure CNPU register bits to enable internal pullup resistor for switch input.
@@ -128,28 +128,31 @@ int main(void)
 	// set change interrupt for both switches
 
 	CNEN2bits.CN27IE = 1;
-	CNEN2bits.CN24IE = 1;
+	CNEN1bits.CN6IE = 1;
 	IFS1bits.CNIF = 0;
 	IEC1bits.CNIE = 1;
-
+	
+	LCDClear();
 	while(1) {
 		// TODO: For each distinct button press, alternate which
 		// LED is illuminated (on).
-		LCDClear();
+		//LCDClear();
+		//LCDPrintChar('c');
 
 		switch (state) {
 			case 0:
-					LATAbits.LATA2 = 1;
-					LATAbits.LATA3 = 0;
+					LATAbits.LATA0 = 1;
+					LATAbits.LATA1 = 0;
 					LCDMoveCursor(0,0);
 					LCDPrintString("Stop:");
 					LCDMoveCursor(1,0);
 					LCDPrintString("00:00.00");
 				break;
 			case 1:
-					LATAbits.LATA2 = 0;
-					LATAbits.LATA3 = 1;
+					LATAbits.LATA0 = 0;
+					LATAbits.LATA1 = 1;
 					LCDMoveCursor(0,0);
+					LCDClear();
 					LCDPrintString("Run:");
 					LCDMoveCursor(1,4);
 					LCDPrintChar(minutes);
@@ -159,9 +162,10 @@ int main(void)
 					LCDPrintChar(TMR1/576);
 				break;
 			case 2:
-					LATAbits.LATA2 = 1;
-					LATAbits.LATA3 = 0;
+					LATAbits.LATA0 = 1;
+					LATAbits.LATA1 = 0;
 					LCDMoveCursor(0,0);
+					LCDClear();
 					LCDPrintString("Stop:");
 					LCDMoveCursor(1,4);
 					LCDPrintChar(minutes);
@@ -179,14 +183,13 @@ int main(void)
 	}
 	return 0;
 }
-
 // *******************************************************************************************
 
-void DebounceDelay(void) {	// function declaration for debouncing
+/*void DebounceDelay(void) {	// function declaration for debouncing
 	T3CONbits.TON = 1;  // turn on TMR2 to activate 5ms interrupt cycle
 	while(T3CONbits.TON != 0){
 	}
-}
+}*/
 
 // verbose call for TMR3 interrupt
 void __attribute__((interrupt,auto_psv)) _T3Interrupt(void){
@@ -209,28 +212,28 @@ void __attribute__((interrupt,auto_psv)) _T1Interrupt(void){
 
 void __attribute__((interrupt,auto_psv)) _CNInterrupt(void){
 	
-	IFS1bits.CNIF == 0;
-	DebounceDelay();
+	IFS1bits.CNIF = 0;
+	//DebounceDelay();
 
 	switch (state){
 		case 0:								// Initial state
 			if(PORTBbits.RB5 == 0){
 				state = 0;
 			}
-			else if(PORTBbits.RB6 == 0){
+			else if(PORTBbits.RB2 == 0){
 				state = 1;
 				_TON = 1;
 			}
 			break;
 		case 1:								// After switch is pressed, before second press
-			if(PORTBbits.RB6 == 0){
+			if(PORTBbits.RB2 == 0){
 				state = 2;
 				_TON = 0;
 			}
 			
 			break;
 		case 2:								// After switch is pressed second time, before release
-			if(PORTBbits.RB6 == 0){
+			if(PORTBbits.RB2 == 0){
 				state = 1;
 			}
 			if (PORTBbits.RB5 == 0){
