@@ -4,6 +4,10 @@
 
 // ******************************************************************************************* //
 
+// Nicolas Fajardo, Paul Cross, Kevin Morris
+// TEAM 202
+
+
 // LCD Data connected to RB15 -> RB12, RS is connected to RB7, and E is connected to RB6
 #define LCD_D   LATB
 #define LCD_RS  LATBbits.LATB7
@@ -133,7 +137,8 @@ void LCDInitialize(void) {
 	LCD_TRIS_D6 = 0;
 	LCD_TRIS_D5 = 0;
 	LCD_TRIS_D4 = 0;
-
+	
+	// first couple set of commans must enable LCD in 4-bit interface
 	LCD_D = (0x0);
 	LCD_RS = 0;
 	LCD_E = 0;
@@ -144,6 +149,8 @@ void LCDInitialize(void) {
 
 	LCD_D = (LCD_D & 0x0FFF) | 0x3000;
 	EnableLCD(LCD_WRITE_CONTROL, 100);
+	
+	// function set, display set
 
 	WriteLCD(0x32, LCD_WRITE_CONTROL, 100);
 
@@ -158,48 +165,16 @@ void LCDInitialize(void) {
 	WriteLCD(0x0C, LCD_WRITE_CONTROL, 50);
 
 
-
-	// Initilization sequence utilizes specific LCD commands before the general configuration
-	// commands can be utilized. The first few initialization commands cannot be done using the
-	// WriteLCD function. Additionally, the specific sequence and timing is very important.
-
-	// Enable 4-bit interface
-
-	// Function Set (specifies data width, lines, and font.
-
-	// 4-bit mode initialization is complete. We can now configure the various LCD
-	// options to control how the LCD will function.
-
-	// TODO: Display On/Off Control
-	// Turn Display (D) Off
-//	WriteLCD(0x08, LCD_WRITE_CONTROL, 37);
-
-
-	// TODO: Clear Display
-//	WriteLCD(0x01, LCD_WRITE_CONTROL, 1520);
-
-	// TODO: Entry Mode Set
-	// Set Increment Display, No Shift (i.e. cursor move)
-	//*** not sure what entry mode is? ***//
-//	WriteLCD(0x14, LCD_WRITE_CONTROL, 50);	// setting cursor address to the right of lcd
-
-//	WriteLCD(0x07, LCD_WRITE_CONTROL, 37);	// set display to shift left, cursor stationary
-
-	// TODO: Display On/Off Control
-	// Turn Display (D) On, Cursor (C) Off, and Blink(B) Off
-
-
-
 }
 
 // ******************************************************************************************* //
 
-// TODO: LCDClear sends a clear screen command to the LCD tht will both clear the screen
+// LCDClear sends a clear screen command to the LCD tht will both clear the screen
 // and return the cursor to the origin (0,0).
 
 void LCDClear(void) {
 	
-	// TODO: Write the proper control instruction to clear the screen ensuring
+	// Write the proper control instruction to clear the screen ensuring
 	// the proper delay is utilized.
 
 	WriteLCD(0x01, LCD_WRITE_CONTROL, 1520);
@@ -207,7 +182,7 @@ void LCDClear(void) {
 
 // ******************************************************************************************* //
 
-// TODO: LCDMoveCursor should move to the cursor to the specified (x,y) coordinate. Note that
+// LCDMoveCursor should move to the cursor to the specified (x,y) coordinate. Note that
 // as the LCD controller is a generic interface for many LCD displays or varying size,
 // some (x,y) cooridnates may not be visible by the LCD display.
 //
@@ -217,7 +192,7 @@ void LCDClear(void) {
 
 void LCDMoveCursor(unsigned char x, unsigned char y) {
 
-	// TODO: Write the propoer control instruction to move the cursor to the specified
+	// Write the propoer control instruction to move the cursor to the specified
 	// (x,y) coordinate. This operation should be performance as a single control
 	// control instruction, i.e. a single call the WriteLCD() function.
 
@@ -227,15 +202,15 @@ void LCDMoveCursor(unsigned char x, unsigned char y) {
 
 // ******************************************************************************************* //
 
-// TODO: LCDPrintChar should print a single ASCII character to the LCD diplay at the
+// LCDPrintChar should print a single ASCII character to the LCD diplay at the
 // current cursor position.
-//u
+//
 // Function Inputs:
 //    char c : ASCII character to write to LCD
 
 void LCDPrintChar(char c) {
 
-	// TODO: Write the ASCII character provide as input to the LCD display ensuring
+	// Write the ASCII character provide as input to the LCD display ensuring
 	// the proper delay is utilized.
 	WriteLCD(c, LCD_WRITE_DATA, 40);
 }
@@ -257,11 +232,3 @@ while(*s) LCDPrintChar(*(s++));
 }
 
 // ******************************************************************************************* //
-
-
-//void __attribute__((interrupt,auto_psv)) _T2Interrupt(void){
-//
-//    TMR2 = 0;				// reset TMR1 value
-//    IFS0bits.T2IF = 0;		// drop interrupt flag to be ready for next interrupt
-//	T2CONbits.TON = 0;				// turn off TMR2 to ensure no unnecessary interrupt calls/
-//}

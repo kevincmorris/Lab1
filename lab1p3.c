@@ -5,7 +5,7 @@
 
 // Nicolas Fajardo, Kevin Morris, & Paul Cross
 // Team 202
-// Date modified: 09/22/2014
+// Date modified: 10/06/2014
 
 // K.N.P. -- Know Nonsense Programmers
 
@@ -64,37 +64,28 @@ int main(void)
 
 	LCDInitialize();
 
-	// TODO: Configure AD1PCFG register for configuring input pins between analog input
+	// Configure AD1PCFG register for configuring input pins between analog input
 	// and digital IO.
-	// DONE
-
-
-
 	AD1PCFGbits.PCFG4 = 1;
 
-	// TODO: Configure TRIS register bits for Right and Left LED outputs.
-	// DONE
-	TRISAbits.TRISA0 = 0;	// STOP LED
-	TRISAbits.TRISA1 = 0;	// RUN LED
+	// Configure TRIS register bits for Right and Left LED outputs.
+	TRISAbits.TRISA0 = 0;	// Run LED
+	TRISAbits.TRISA1 = 0;	// Stop LED
 
-	// TODO: Configure LAT register bits to initialize Right LED to on.
-	// DONE
-	LATAbits.LATA0 = 1; // LEFT LED OFF
-	LATAbits.LATA1 = 0; // RIGHT LED ON
+	// Configure LAT register bits to initialize Right LED to on.
+	LATAbits.LATA0 = 1; // LEFT LED ON
+	LATAbits.LATA1 = 0; // RIGHT LED OFF
 
-	// TODO: Configure ODC register bits to use open drain configuration for Right
+	// Configure ODC register bits to use open drain configuration for Right
 	// and Left LED output.
-	// DONE
 	ODCAbits.ODA0 = 1;
 	ODCAbits.ODA1 = 1;	
 
-	// TODO: Configure TRIS register bits for switch input.
-	// DONE
+	// Configure TRIS register bits for switch input.
 	TRISBbits.TRISB2 = 1;
 	TRISBbits.TRISB5 = 1;
 
-	// TODO: Configure CNPU register bits to enable internal pullup resistor for switch input.
-	// DONE
+	// Configure CNPU register bits to enable internal pullup resistor for switch input.
 	CNPU1bits.CN6PUE = 1;
 	
 	// This line sets the Timer 2 to use the internal clock, to have a prescaler of 256,
@@ -102,20 +93,7 @@ int main(void)
 	T3CON = 0x0030;
 	T1CON = 0x0030;
 
-	// TODO: Setup Timer 2 to use internal clock (Fosc/2).
-	// _TCS = 0;
-
-	// TODO: Setup Timer 2's prescaler to 1:256.
-	// DONE
-	// T1CONbits.TCKPS0 = 1;	
-	// T1CONbits.TCKPS1 = 1;
-
- 	// TODO: Set Timer 2 to be initially off.
-	// DONE	
-	// _TON = 0;
-
-	// TODO: Clear Timer 2 value and reset interrupt flag
-	// DONE
+	// Clear Timers' values and reset interrupt flags
 	TMR3 = 0;
 	IFS0bits.T3IF = 0;
 	IEC0bits.T3IE = 1;
@@ -124,29 +102,31 @@ int main(void)
 	IFS0bits.T1IF = 0;
 	IEC0bits.T1IE = 1;
 
-	// TODO: Set Timer 1's period value register to value for 5 ms.
-	// DONE 
+	// Set periods of 
 	PR3 = 287;
 	PR1 = 57599;
 
 	// set change interrupt for both switches
-
 	CNEN2bits.CN27IE = 1;
 	CNEN1bits.CN6IE = 1;
 	IFS1bits.CNIF = 0;
 	IEC1bits.CNIE = 1;
 	
+	// Ensure LCD gets cleared before starting functionality
 	LCDClear();
 	while(1) {
-		// TODO: For each distinct button press, alternate which
-		// LED is illuminated (on).
-		//LCDClear();
-	//	LCDPrintChar('c');
+		
 
+	/* 	This block of code has the three states of the stopwatch.  Case 0 is the initial state
+		with the red LED on and the timer stopped with "Stop" printed on the LCD.  Case 1 is the
+		running state with the screen incrementing by the timer and "Run" printed on the LCD.
+		Case 2 is the stopped state after the stopwatch has been used.  The timer value is still
+		printed on the LCD and "Stop" is printed.
+	*/
 		switch (state) {
 			case 0:
-					LATAbits.LATA0 = 1;
-					LATAbits.LATA1 = 0;
+					LATAbits.LATA0 = 1;		// red on
+					LATAbits.LATA1 = 0;		
 					LCDMoveCursor(0,0);
 					LCDPrintString("Stop:");
 					LCDMoveCursor(1,0);
@@ -154,12 +134,13 @@ int main(void)
 				break;
 			case 1:
 					LATAbits.LATA0 = 0;
-					LATAbits.LATA1 = 1;
+					LATAbits.LATA1 = 1;		// green on
 					LCDMoveCursor(0,0);
 					LCDClear();
 					LCDPrintString("Run:");
 					LCDMoveCursor(1,0);
-
+					
+		// these conditional statements separate the numbers and print them properly
 					if (minutes < 10){
 						LCDPrintChar('0'); 
 						LCDPrintChar(minutes + '0');	
@@ -190,13 +171,14 @@ int main(void)
 					}
 				break;
 			case 2:
-					LATAbits.LATA0 = 1;
+					LATAbits.LATA0 = 1;		// red on
 					LATAbits.LATA1 = 0;
 					LCDMoveCursor(0,0);
 					LCDClear();
 					LCDPrintString("Stop:");
 					LCDMoveCursor(1,0);
 
+			// these conditional statements separate the numbers and print them properly
 					if (minutes < 10){
 						LCDPrintChar('0'); 
 						LCDPrintChar(minutes + '0');	
@@ -240,22 +222,14 @@ int main(void)
 void DebounceDelay(void) {	// function declaration for debouncing
 	T3CONbits.TON = 1;  // turn on TMR3 to activate 5ms interrupt cycle
 	IFS0bits.T3IF = 0;
-	while(IFS0bits.T3IF == 0){};
+	while(IFS0bits.T3IF == 0){};	// waits for the full timer to execute
 	T3CONbits.TON = 0;
 	IFS0bits.T3IF = 0;
 }
 
-//// verbose call for TMR3 interrupt
-//void __attribute__((interrupt,auto_psv)) _T3Interrupt(void){
-//
-//    TMR3 = 0;				// reset TMR1 value
-//    IFS0bits.T3IF = 0;		// drop interrupt flag to be ready for next interrupt
-//	T3CONbits.TON = 0;				// turn off TMR2 to ensure no unnecessary interrupt calls
-//}
-
 void __attribute__((interrupt,auto_psv)) _T1Interrupt(void){
 	++seconds;
-	if (seconds == 60) {
+	if (seconds == 60) {	// increment minutes if the seconds has reached 60
 		seconds = 0;
 		++minutes;
 	}
@@ -271,16 +245,16 @@ void __attribute__((interrupt,auto_psv)) _CNInterrupt(void){
 
 	switch (state){
 		case 0:								// Initial state
-			if(PORTBbits.RB5 == 0){
+			if(PORTBbits.RB5 == 0){			// if reset
 				state = 0;
 			}
-			else if(PORTBbits.RB2 == 0){
+			else if(PORTBbits.RB2 == 0){	// if external switch pressed
 				state = 1;
 				_TON = 1;
 			}
 			break;
 		case 1:								// After switch is pressed, before second press
-			if(PORTBbits.RB2 == 0){
+			if(PORTBbits.RB2 == 0){			// if external switch is pressed, stop timer and proceedS
 				state = 2;
 				_TON = 0;
 			}
@@ -291,7 +265,7 @@ void __attribute__((interrupt,auto_psv)) _CNInterrupt(void){
 				state = 1;
 				_TON = 1;
 			}
-			if (PORTBbits.RB5 == 0){
+			if (PORTBbits.RB5 == 0){		// if reset is pressed return to init 
 				state = 0;
 				minutes = 0;
 				seconds = 0;
