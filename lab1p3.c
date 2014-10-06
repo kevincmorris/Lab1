@@ -11,11 +11,13 @@
 
 #include "p24fj64ga002.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include "lcd.h"
 
 volatile int state = 0;
 volatile unsigned int minutes = 0;
 volatile unsigned int seconds = 0;
+volatile char buf[3];
 
 void DebounceDelay(void);
 
@@ -60,11 +62,13 @@ int main(void)
 {
 	// ****************************************************************************** //
 
-//	LCDInitialize();
+	LCDInitialize();
 
 	// TODO: Configure AD1PCFG register for configuring input pins between analog input
 	// and digital IO.
 	// DONE
+
+
 
 	AD1PCFGbits.PCFG4 = 1;
 
@@ -122,7 +126,7 @@ int main(void)
 
 	// TODO: Set Timer 1's period value register to value for 5 ms.
 	// DONE 
-	PR3 = 71;
+	PR3 = 287;
 	PR1 = 57599;
 
 	// set change interrupt for both switches
@@ -137,7 +141,7 @@ int main(void)
 		// TODO: For each distinct button press, alternate which
 		// LED is illuminated (on).
 		//LCDClear();
-		//LCDPrintChar('c');
+	//	LCDPrintChar('c');
 
 		switch (state) {
 			case 0:
@@ -154,12 +158,36 @@ int main(void)
 					LCDMoveCursor(0,0);
 					LCDClear();
 					LCDPrintString("Run:");
-					LCDMoveCursor(1,4);
-					LCDPrintChar(minutes);
-					LCDPrintChar(":");
-					LCDPrintChar(seconds);
-					LCDPrintChar(".");
-					LCDPrintChar(TMR1/576);
+					LCDMoveCursor(1,0);
+
+					if (minutes < 10){
+						LCDPrintChar('0'); 
+						LCDPrintChar(minutes + '0');	
+					}
+					else if (minutes >= 10) {
+						LCDPrintChar( minutes/10 + '0');
+						LCDPrintChar( minutes%10 + '0');
+					}
+					LCDPrintChar(':');
+
+					if (seconds < 10){	
+						LCDPrintChar('0'); 
+						LCDPrintChar(seconds + '0');
+					}
+					else if ( seconds >= 10) {
+						LCDPrintChar( seconds/10 + '0');
+						LCDPrintChar( seconds%10 + '0');
+					}
+					LCDPrintChar('.');
+
+					if (TMR1/576 < 10){	
+						LCDPrintChar('0'); 
+						LCDPrintChar(TMR1/576 + '0');
+					}
+					else if ( TMR1/576 >= 10) {
+						LCDPrintChar( TMR1/5760 + '0');
+						LCDPrintChar( (TMR1/576)%10 + '0');
+					}
 				break;
 			case 2:
 					LATAbits.LATA0 = 1;
@@ -167,12 +195,36 @@ int main(void)
 					LCDMoveCursor(0,0);
 					LCDClear();
 					LCDPrintString("Stop:");
-					LCDMoveCursor(1,4);
-					LCDPrintChar(minutes);
-					LCDPrintChar(":");
-					LCDPrintChar(seconds);
-					LCDPrintChar(".");
-					LCDPrintChar(TMR1/576);			// stay
+					LCDMoveCursor(1,0);
+
+					if (minutes < 10){
+						LCDPrintChar('0'); 
+						LCDPrintChar(minutes + '0');	
+					}
+					else if (minutes >= 10) {
+						LCDPrintChar( minutes/10 + '0');
+						LCDPrintChar( minutes%10 + '0');
+					}
+					LCDPrintChar(':');
+
+					if (seconds < 10){	
+						LCDPrintChar('0'); 
+						LCDPrintChar(seconds + '0');
+					}
+					else if ( seconds >= 10) {
+						LCDPrintChar( seconds/10 + '0');
+						LCDPrintChar( seconds%10 + '0');
+					}
+					LCDPrintChar('.');
+
+					if (TMR1/576 < 10){	
+						LCDPrintChar('0'); 
+						LCDPrintChar(TMR1/576 + '0');
+					}
+					else if ( TMR1/576 >= 10) {
+						LCDPrintChar( TMR1/5760 + '0');
+						LCDPrintChar( (TMR1/576)%10 + '0');
+					}
 				break;
 			
 		}
@@ -185,19 +237,21 @@ int main(void)
 }
 // *******************************************************************************************
 
-/*void DebounceDelay(void) {	// function declaration for debouncing
-	T3CONbits.TON = 1;  // turn on TMR2 to activate 5ms interrupt cycle
-	while(T3CONbits.TON != 0){
-	}
-}*/
-
-// verbose call for TMR3 interrupt
-void __attribute__((interrupt,auto_psv)) _T3Interrupt(void){
-
-    TMR3 = 0;				// reset TMR1 value
-    IFS0bits.T3IF = 0;		// drop interrupt flag to be ready for next interrupt
-	T3CONbits.TON = 0;				// turn off TMR2 to ensure no unnecessary interrupt calls
+void DebounceDelay(void) {	// function declaration for debouncing
+	T3CONbits.TON = 1;  // turn on TMR3 to activate 5ms interrupt cycle
+	IFS0bits.T3IF = 0;
+	while(IFS0bits.T3IF == 0){};
+	T3CONbits.TON = 0;
+	IFS0bits.T3IF = 0;
 }
+
+//// verbose call for TMR3 interrupt
+//void __attribute__((interrupt,auto_psv)) _T3Interrupt(void){
+//
+//    TMR3 = 0;				// reset TMR1 value
+//    IFS0bits.T3IF = 0;		// drop interrupt flag to be ready for next interrupt
+//	T3CONbits.TON = 0;				// turn off TMR2 to ensure no unnecessary interrupt calls
+//}
 
 void __attribute__((interrupt,auto_psv)) _T1Interrupt(void){
 	++seconds;
@@ -213,7 +267,7 @@ void __attribute__((interrupt,auto_psv)) _T1Interrupt(void){
 void __attribute__((interrupt,auto_psv)) _CNInterrupt(void){
 	
 	IFS1bits.CNIF = 0;
-	//DebounceDelay();
+	DebounceDelay();
 
 	switch (state){
 		case 0:								// Initial state
@@ -235,6 +289,7 @@ void __attribute__((interrupt,auto_psv)) _CNInterrupt(void){
 		case 2:								// After switch is pressed second time, before release
 			if(PORTBbits.RB2 == 0){
 				state = 1;
+				_TON = 1;
 			}
 			if (PORTBbits.RB5 == 0){
 				state = 0;

@@ -57,7 +57,7 @@ void DelayUs(unsigned int usDelay) { // DONE
 	IFS0bits.T2IF = 0;
 //	IEC0bits.T2IE = 1;
 	while(IFS0bits.T2IF == 0){};
-	T1CONbits.TON = 0;
+	T2CONbits.TON = 0;
 	IFS0bits.T2IF = 0;
 	
 
